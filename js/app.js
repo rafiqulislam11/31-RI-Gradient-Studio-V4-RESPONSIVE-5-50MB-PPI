@@ -937,7 +937,15 @@ class RICreativeApp {
 
     // Filter by Search Query
     if (this.searchQuery) {
-      list = list.filter(t => t.title.toLowerCase().includes(this.searchQuery) || t.category.toLowerCase().includes(this.searchQuery));
+      list = list.filter(t => {
+        const searchableText = [
+          t.id,
+          t.title,
+          t.category,
+          ...(Array.isArray(t.subcategories) ? t.subcategories : [])
+        ].filter(Boolean).join(' ').toLowerCase();
+        return searchableText.includes(this.searchQuery);
+      });
     }
 
     if (list.length === 0) {
@@ -1011,31 +1019,53 @@ class RICreativeApp {
    */
   renderElementsDrawer(container) {
     container.innerHTML = `
-      <div style="font-size:12px; color:var(--text-muted);">Click any element to add it directly to the canvas:</div>
-      <div class="elements-grid">
-        ${window.RI_DATA.ELEMENT_PRESETS.map(el => `
-          <div class="element-item" data-element-id="${el.id}" draggable="true">
-            ${el.svg}
-            <div class="element-label">${el.name}</div>
-          </div>
-        `).join('')}
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="element-search-input" class="search-input" placeholder="Search features and elements...">
       </div>
+      <div style="font-size:12px; color:var(--text-muted);">Click any element to add it directly to the canvas:</div>
+      <div class="elements-grid" id="elements-grid-list"></div>
     `;
 
-    container.querySelectorAll('.element-item').forEach(item => {
-      item.addEventListener('dragstart', (e) => {
-        e.dataTransfer.setData('ri-drop-type', 'element');
-        e.dataTransfer.setData('ri-drop-id', item.dataset.elementId);
+    const searchInput = container.querySelector('#element-search-input');
+    const grid = container.querySelector('#elements-grid-list');
+    const renderElements = (query = '') => {
+      const normalizedQuery = query.toLowerCase().trim();
+      const elements = window.RI_DATA.ELEMENT_PRESETS.filter(element => {
+        const searchableText = [element.id, element.name, element.type].filter(Boolean).join(' ').toLowerCase();
+        return !normalizedQuery || searchableText.includes(normalizedQuery);
       });
-      item.addEventListener('click', () => {
-        const elId = item.dataset.elementId;
-        const def = window.RI_DATA.ELEMENT_PRESETS.find(e => e.id === elId);
-        if (def) {
-          this.studio.addElementSVG(def);
-          this.toast(`Added ${def.name}`, 'info');
-        }
+
+      if (!elements.length) {
+        grid.innerHTML = '<div style="grid-column:1 / -1; text-align:center; padding:30px 10px; color:var(--text-muted); font-size:12px;">No features found. Try another search.</div>';
+        return;
+      }
+
+      grid.innerHTML = elements.map(el => `
+        <div class="element-item" data-element-id="${el.id}" draggable="true">
+          ${el.svg}
+          <div class="element-label">${el.name}</div>
+        </div>
+      `).join('');
+
+      grid.querySelectorAll('.element-item').forEach(item => {
+        item.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('ri-drop-type', 'element');
+          e.dataTransfer.setData('ri-drop-id', item.dataset.elementId);
+        });
+        item.addEventListener('click', () => {
+          const elId = item.dataset.elementId;
+          const def = window.RI_DATA.ELEMENT_PRESETS.find(e => e.id === elId);
+          if (def) {
+            this.studio.addElementSVG(def);
+            this.toast(`Added ${def.name}`, 'info');
+          }
+        });
       });
-    });
+    };
+
+    searchInput.addEventListener('input', (event) => renderElements(event.target.value));
+    renderElements();
   }
 
   /**
