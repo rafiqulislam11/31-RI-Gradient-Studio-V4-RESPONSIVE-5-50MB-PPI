@@ -1699,6 +1699,44 @@ body.dark-mode {
 }
 
 @media (max-width: 768px) {
+  .app-header {
+    padding: 0 8px;
+    gap: 4px;
+    overflow: hidden;
+  }
+  .header-left,
+  .header-right {
+    min-width: 0;
+    gap: 2px;
+  }
+  .brand-logo {
+    margin-right: 2px;
+  }
+  .brand-logo span,
+  .btn-header > span,
+  .divider-vertical {
+    display: none;
+  }
+  .btn-header {
+    padding: 0 6px;
+  }
+  .btn-header.icon-only {
+    width: 30px;
+  }
+  #btn-save-as,
+  #btn-undo,
+  #btn-redo,
+  #btn-preview-fullscreen,
+  #btn-shortcuts-modal,
+  #btn-header-profile {
+    display: none;
+  }
+  .btn-bulk-mode,
+  .btn-export {
+    width: 34px;
+    padding: 0;
+    justify-content: center;
+  }
   .app-workspace {
     flex-direction: column;
   }
@@ -1706,10 +1744,24 @@ body.dark-mode {
     width: 100%;
     height: 52px;
     flex-direction: row;
-    justify-content: space-around;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 6px 8px;
+    gap: 6px;
+    scrollbar-width: none;
     border-right: none;
     border-bottom: 1px solid var(--border-light);
     order: 2;
+  }
+  .tool-strip::-webkit-scrollbar {
+    display: none;
+  }
+  .tool-strip > div[style*="flex:1"] {
+    display: none;
+  }
+  .tool-tab {
+    flex: 0 0 54px;
   }
   .drawer-panel {
     position: absolute;
@@ -1735,6 +1787,30 @@ body.dark-mode {
   }
   .header-center {
     display: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .app-header {
+    padding: 0 4px;
+  }
+  .brand-icon {
+    width: 30px;
+    height: 30px;
+  }
+  .btn-header {
+    padding: 0 4px;
+  }
+  .btn-bulk-mode,
+  .btn-export {
+    width: 30px;
+  }
+  .drawer-body {
+    padding: 12px;
+  }
+  .ai-style-grid,
+  .ai-insight-grid {
+    grid-template-columns: 1fr;
   }
 }
 
