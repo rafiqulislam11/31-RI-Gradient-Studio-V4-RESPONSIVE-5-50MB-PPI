@@ -1,5 +1,5 @@
 (() => {
-  const LOCAL_VERSION = '1.1.0';
+  const LOCAL_VERSION = '1.2.0';
   const VERSION_URLS = [
     'version.json',
     'https://raw.githubusercontent.com/rafiqulislam11/31-RI-Gradient-Studio-V4-RESPONSIVE-5-50MB-PPI/main/version.json'

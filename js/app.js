@@ -280,6 +280,16 @@ class RICreativeApp {
           <textarea id="ai-design-prompt" class="ai-prompt-input" rows="4" placeholder="e.g. Luxury black gold smartwatch campaign for premium audience">Luxury black gold smartwatch campaign for premium audience</textarea>
         </div>
 
+        <div class="ai-batch-box">
+          <label class="inspector-label">50-PROMPT BATCH</label>
+          <textarea id="ai-batch-prompts" class="ai-prompt-input" rows="5" placeholder="One prompt per line, up to 50 prompts...">Luxury black gold smartwatch campaign
+Minimal skincare product launch
+Bold summer fashion sale</textarea>
+          <div class="ai-batch-meta"><span id="ai-batch-count">3 / 50 prompts</span><span>One gradient PNG per prompt</span></div>
+          <button class="btn-secondary ai-batch-btn" id="btn-ai-batch-generate">Create Batch Images</button>
+          <div class="ai-batch-progress" id="ai-batch-progress" aria-live="polite"></div>
+        </div>
+
         <div class="ai-style-picker">
           <label class="inspector-label">STYLE MIX</label>
           <div class="ai-style-grid">
@@ -404,6 +414,70 @@ class RICreativeApp {
       ];
       const promptInput = document.getElementById('ai-design-prompt');
       if (promptInput) promptInput.value = promptPool[Math.floor(Math.random() * promptPool.length)];
+    });
+
+    const batchInput = container.querySelector('#ai-batch-prompts');
+    const batchCount = container.querySelector('#ai-batch-count');
+    const batchProgress = container.querySelector('#ai-batch-progress');
+    const updateBatchCount = () => {
+      const count = (batchInput?.value || '').split(/\r?\n/).map(line => line.trim()).filter(Boolean).length;
+      if (batchCount) batchCount.textContent = `${Math.min(count, 50)} / 50 prompts`;
+    };
+    batchInput?.addEventListener('input', updateBatchCount);
+    updateBatchCount();
+
+    container.querySelector('#btn-ai-batch-generate')?.addEventListener('click', async (event) => {
+      const prompts = (batchInput?.value || '').split(/\r?\n/).map(line => line.trim()).filter(Boolean).slice(0, 50);
+      if (!prompts.length) {
+        this.toast('Add at least one prompt for batch generation.', 'warning');
+        return;
+      }
+
+      const button = event.currentTarget;
+      const originalState = this.studio.canvas.toJSON(['id', 'name', 'isPhotoSlot', 'rx', 'ry', 'shadow', 'stroke', 'strokeWidth', 'customFilters']);
+      const originalTitle = this.studio.activeDesignTitle;
+      const zip = typeof JSZip !== 'undefined' ? new JSZip() : null;
+      const generatedImages = [];
+      button.disabled = true;
+      if (batchProgress) batchProgress.textContent = `Preparing 0 / ${prompts.length}...`;
+
+      try {
+        for (let index = 0; index < prompts.length; index += 1) {
+          const prompt = prompts[index];
+          if (batchProgress) batchProgress.textContent = `Creating ${index + 1} / ${prompts.length}: ${prompt.slice(0, 36)}...`;
+          await this.generateAiDesign(prompt, activeAiStyle);
+          const imageData = this.studio.canvas.toDataURL({ format: 'png', multiplier: 1 });
+          const filename = `ri-ai-design-${String(index + 1).padStart(2, '0')}.png`;
+          generatedImages.push({ filename, imageData });
+          if (zip) zip.file(filename, imageData.split(',')[1], { base64: true });
+          await new Promise(resolve => setTimeout(resolve, 20));
+        }
+
+        if (zip) {
+          const blob = await zip.generateAsync({ type: 'blob' });
+          saveAs(blob, `ri-ai-batch-${Date.now()}.zip`);
+        } else {
+          generatedImages.forEach(item => {
+            const link = document.createElement('a');
+            link.href = item.imageData;
+            link.download = item.filename;
+            link.click();
+          });
+        }
+        if (batchProgress) batchProgress.textContent = `${generatedImages.length} images created and downloaded.`;
+        this.toast(`${generatedImages.length} AI gradient images created.`, 'success');
+      } catch (error) {
+        console.error('AI batch generation failed:', error);
+        if (batchProgress) batchProgress.textContent = 'Batch stopped. Try again with fewer prompts.';
+        this.toast('Batch generation stopped unexpectedly.', 'warning');
+      } finally {
+        await new Promise(resolve => this.studio.canvas.loadFromJSON(originalState, resolve));
+        this.studio.canvas.renderAll();
+        this.studio.activeDesignTitle = originalTitle;
+        const titleInput = document.getElementById('header-design-title');
+        if (titleInput) titleInput.value = originalTitle;
+        button.disabled = false;
+      }
     });
 
     container.querySelector('#btn-ai-generate')?.addEventListener('click', async () => {

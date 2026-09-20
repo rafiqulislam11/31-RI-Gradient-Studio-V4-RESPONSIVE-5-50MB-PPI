@@ -604,6 +604,47 @@ body.dark-mode {
   gap: 8px;
 }
 
+.ai-batch-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--bg-app);
+}
+
+.ai-batch-box .ai-prompt-input {
+  min-height: 112px;
+  background: var(--bg-surface);
+}
+
+.ai-batch-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.ai-batch-btn {
+  width: 100%;
+  min-height: 38px;
+  font-weight: 700;
+}
+
+.ai-batch-btn:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.ai-batch-progress {
+  min-height: 16px;
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 700;
+}
+
 .ai-prompt-input {
   width: 100%;
   min-height: 100px;
