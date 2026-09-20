@@ -870,7 +870,6 @@ class RICreativeApp {
       </div>
 
       <div class="category-pills" id="template-filter-pills" style="margin-bottom:4px;">
-        <button class="pill-btn ${this.templateFilter==='all'?'active':''}" data-tfilter="all">🏠 All</button>
         <button class="pill-btn ${this.templateFilter==='favorites'?'active':''}" data-tfilter="favorites">★ Favorites</button>
         <button class="pill-btn ${this.templateFilter==='recent'?'active':''}" data-tfilter="recent">🕒 Recent</button>
       </div>
@@ -907,6 +906,12 @@ class RICreativeApp {
         container.querySelectorAll('.pill-btn[data-cat]').forEach(b => b.classList.remove('active'));
         e.currentTarget.classList.add('active');
         this.activeCategory = e.currentTarget.dataset.cat;
+        if (this.activeCategory === 'All') {
+          this.templateFilter = 'all';
+          container.querySelectorAll('[data-tfilter]').forEach(filterBtn => filterBtn.classList.remove('active'));
+          this.searchQuery = '';
+          if (searchInput) searchInput.value = '';
+        }
         this.updateTemplatesList();
       });
     });
