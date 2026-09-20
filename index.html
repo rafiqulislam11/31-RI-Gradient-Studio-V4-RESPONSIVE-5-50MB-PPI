@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RI Creative — Professional Graphic Design & Bulk Studio</title>
+  <meta name="description" content="Production-quality single-page graphic design editor combining Canva + Photoshop + Illustrator workflows with 1-to-50 bulk image automation, 100+ templates, and print-ready 300 PPI export.">
+  
+  <!-- Google Fonts Preconnect & Styles -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@700&family=Dancing+Script:wght@700&family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&family=Oswald:wght@600;700&family=Outfit:wght@500;700;800&family=Pacifico&family=Playfair+Display:wght@700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&family=Raleway:wght@400;600&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- CSS Styles -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Core Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+  <div id="app-container">
+    
+    <!-- 1. TOP HEADER NAVIGATION -->
+    <header class="app-header">
+      <div class="header-left">
+        <a href="#" class="brand-logo" title="RI Creative Graphic Studio">
+          <div class="brand-icon">RI</div>
+          <span>RI Creative</span>
+        </a>
+
+        <div class="divider-vertical"></div>
+
+        <button class="btn-header" id="btn-new-design" data-tooltip="Create New Canvas (Ctrl+N)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          <span>New</span>
+        </button>
+
+        <button class="btn-header" id="btn-open-design" data-tooltip="Browse Saved Designs">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          <span>Open</span>
+        </button>
+
+        <button class="btn-header" id="btn-save-design" data-tooltip="Save to Database (Ctrl+S)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          <span>Save</span>
+        </button>
+
+        <button class="btn-header" id="btn-save-as" data-tooltip="Duplicate / Save As">
+          <span>Save As</span>
+        </button>
+
+        <div class="divider-vertical"></div>
+
+        <button class="btn-header icon-only" id="btn-undo" data-tooltip="Undo (Ctrl+Z)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+        </button>
+
+        <button class="btn-header icon-only" id="btn-redo" data-tooltip="Redo (Ctrl+Shift+Z)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"/></svg>
+        </button>
+      </div>
+
+      <div class="header-center">
+        <input type="text" id="header-design-title" class="header-design-title" value="Social Showcase V1" title="Click to rename design">
+      </div>
+
+      <div class="header-right">
+        <button class="btn-header" id="btn-preview-fullscreen" data-tooltip="Full-Screen Preview">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span>Preview</span>
+        </button>
+
+        <!-- BULK MODE HERO BUTTON -->
+        <button class="btn-header btn-bulk-mode" id="btn-header-bulk" data-tooltip="Apply One Template to Up to 50 Images">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          <span>Bulk Mode (50 Img)</span>
+        </button>
+
+        <button class="btn-header btn-export" id="btn-header-export" data-tooltip="Export PNG / JPG / PDF / 300 DPI">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>Export</span>
+        </button>
+
+        <button class="btn-header icon-only" id="btn-shortcuts-modal" data-tooltip="Keyboard Shortcuts Cheatsheet">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.001M10 8h.001M14 8h.001M18 8h.001M8 12h.001M12 12h.001M16 12h.001M7 16h10"/></svg>
+        </button>
+
+        <button class="user-avatar-btn" id="btn-header-profile" data-tooltip="User Profile & Settings">
+          RI
+        </button>
+      </div>
+    </header>
+
+    <!-- 2. MAIN WORKSPACE AREA -->
+    <main class="app-workspace">
+      
+      <!-- LEFT TOOL STRIP -->
+      <nav class="tool-strip" aria-label="Main Toolset">
+        <button class="tool-tab active" data-tab="templates" title="100+ Ready Templates">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          <span>Templates</span>
+        </button>
+
+        <button class="tool-tab" data-tab="elements" title="50+ Vector Elements & Stickers">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24M14.83 9.17l4.24-4.24M14.83 14.83l4.24 4.24M9.17 14.83l-4.24 4.24"/></svg>
+          <span>Elements</span>
+        </button>
+
+        <button class="tool-tab" data-tab="text" title="Typography & Presets">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+          <span>Text</span>
+        </button>
+
+        <button class="tool-tab" data-tab="shapes" title="30+ Shapes & Geometrics">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+          <span>Shapes</span>
+        </button>
+
+        <button class="tool-tab" data-tab="images" title="Images & Stock Photos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <span>Images</span>
+        </button>
+
+        <button class="tool-tab" data-tab="background" title="Background & 20+ Mixed Gradients">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+          <span>Background</span>
+        </button>
+
+        <button class="tool-tab" data-tab="layers" title="Canvas Layers Manager">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+          <span>Layers</span>
+        </button>
+
+        <button class="tool-tab" data-tab="my-designs" title="My Saved Designs (IndexedDB)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          <span>My Designs</span>
+        </button>
+
+        <div style="flex:1;"></div>
+
+        <button class="tool-tab badge-pulse" data-tab="bulk-hub" title="Open 50-Image Bulk Automation Studio">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2.5"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/></svg>
+          <span style="color:#4f46e5; font-weight:800;">Bulk Hub</span>
+        </button>
+      </nav>
+
+      <!-- EXPANDABLE DRAWER PANEL -->
+      <aside class="drawer-panel" id="drawer-panel" aria-label="Tool Drawer">
+        <div class="drawer-header">
+          <div class="drawer-title" id="drawer-header-title">Design Templates</div>
+          <button class="drawer-close-btn" id="btn-close-drawer" title="Collapse Drawer">✕</button>
+        </div>
+        <div class="drawer-body" id="drawer-body-content">
+          <!-- Populated dynamically by app.js -->
+        </div>
+      </aside>
+
+      <!-- CENTER WORKSPACE -->
+      <section class="center-workspace" aria-label="Canvas Workspace">
+        <div class="ruler-top" id="ruler-top">
+          <!-- Subtle pixel markers -->
+          <span style="position:absolute; left:20px;">0</span>
+          <span style="position:absolute; left:200px;">200</span>
+          <span style="position:absolute; left:400px;">400</span>
+          <span style="position:absolute; left:600px;">600</span>
+          <span style="position:absolute; left:800px;">800</span>
+          <span style="position:absolute; left:1000px;">1000</span>
+        </div>
+
+        <div class="canvas-viewport" id="canvas-viewport">
+          <div class="canvas-container-box">
+            <canvas id="main-canvas"></canvas>
+            <div class="canvas-grid-overlay" id="canvas-grid-overlay"></div>
+          </div>
+        </div>
+
+        <!-- BOTTOM STATUS BAR -->
+        <footer class="bottom-statusbar">
+          <div class="statusbar-section">
+            <span class="status-badge" id="status-canvas-dim">1080 × 1080 px</span>
+            <span class="status-badge" id="status-canvas-ppi">72 DPI</span>
+            <button class="btn-zoom" id="btn-toggle-grid" title="Toggle Alignment Grid">#</button>
+          </div>
+
+          <div class="statusbar-section">
+            <div class="zoom-controls">
+              <button class="btn-zoom" id="btn-zoom-out" title="Zoom Out (-)">−</button>
+              <span id="status-zoom-val" style="min-width:44px; text-align:center; font-weight:700;">100%</span>
+              <button class="btn-zoom" id="btn-zoom-in" title="Zoom In (+)">+</button>
+              <button class="btn-zoom" id="btn-zoom-100" title="Actual Size (100%)">1:1</button>
+              <button class="btn-zoom" id="btn-zoom-fit" title="Fit to Screen" style="width:auto; padding:0 8px;">Fit</button>
+            </div>
+          </div>
+        </footer>
+      </section>
+
+      <!-- RIGHT PROPERTIES INSPECTOR PANEL -->
+      <aside class="inspector-panel" id="inspector-panel" aria-label="Properties Inspector">
+        <div class="inspector-header">
+          <span>Properties</span>
+          <span style="font-size:11px; color:var(--text-muted);">Inspector</span>
+        </div>
+        <div id="inspector-dynamic-content">
+          <!-- Populated dynamically based on active object selection -->
+        </div>
+      </aside>
+
+    </main>
+
+    <!-- 3. BULK DESIGN AUTOMATION STUDIO OVERLAY -->
+    <div class="bulk-studio-overlay" id="bulk-studio-modal">
+      <div class="bulk-modal-box">
+        <div class="bulk-modal-header">
+          <div class="bulk-header-title">
+            <h2 style="font-size:18px; font-weight:800; color:var(--text-main);">Bulk Design Automation Studio</h2>
+            <span class="bulk-badge">1 to 50 Images Batch Mode</span>
+          </div>
+          <button class="drawer-close-btn" id="btn-close-bulk-modal" style="font-size:16px;">✕</button>
+        </div>
+
+        <div class="bulk-modal-body">
+          <!-- Left Setup Column -->
+          <div class="bulk-setup-col">
+            <div class="inspector-label">1. UPLOAD UP TO 50 IMAGES</div>
+            
+            <input type="file" id="bulk-file-input" multiple accept="image/*" style="display:none;">
+            <div class="bulk-dropzone" id="bulk-dropzone">
+              <div class="bulk-dropzone-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </div>
+              <div style="font-size:13px; font-weight:700; color:var(--text-main);">Drop 1 to 50 images here</div>
+              <div style="font-size:11px; color:var(--text-muted);">or click to browse from your computer</div>
+            </div>
+
+            <div class="inspector-label">OR QUICK TEST WITH DEMO SAMPLES</div>
+            <div class="demo-batch-strip">
+              <button class="btn-demo-sample" id="btn-load-10-samples">10 Samples</button>
+              <button class="btn-demo-sample" id="btn-load-25-samples">25 Samples</button>
+              <button class="btn-demo-sample" id="btn-load-50-samples">50 Samples</button>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+              <span id="bulk-count-badge" style="font-size:12px; font-weight:700; color:var(--text-main);">0 / 50 Images Selected</span>
+              <button class="btn-card-action" id="btn-clear-bulk-images" style="font-size:11px;">Clear All</button>
+            </div>
+
+            <div class="bulk-thumbnails-grid" id="bulk-thumbnails-grid">
+              <!-- Uploaded thumbnail items -->
+            </div>
+
+            <div class="inspector-label" style="margin-top:6px;">2. AUTOMATION CONFIGURATION</div>
+
+            <div class="prop-col">
+              <span class="prop-input-label">Auto-Fit Placement Mode</span>
+              <select id="bulk-fit-mode" class="input-control">
+                <option value="Cover" selected>Smart Crop / Cover (Fill & Crop excess)</option>
+                <option value="Contain">Contain (Fit entire image inside frame)</option>
+                <option value="Fill">Fill / Stretch (Exact fit)</option>
+                <option value="Smart Crop">Smart Focus Center Crop</option>
+              </select>
+            </div>
+
+            <div class="prop-col" style="margin-top:6px;">
+              <span class="prop-input-label">Design Naming Scheme</span>
+              <select id="bulk-naming-mode" class="input-control">
+                <option value="auto-number" selected>Auto Number (Design 01, Design 02...)</option>
+                <option value="original-filename">Original Image Filename</option>
+                <option value="custom-prefix">Custom Prefix</option>
+              </select>
+            </div>
+
+            <div class="prop-col" style="margin-top:6px;">
+              <span class="prop-input-label">Custom Prefix Name</span>
+              <input type="text" id="bulk-custom-prefix" class="input-control" value="Product Banner">
+            </div>
+
+            <!-- HERO APPLY TO ALL BUTTON -->
+            <button class="btn-apply-all" id="btn-apply-design-all" disabled>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              APPLY DESIGN TO ALL
+            </button>
+
+            <!-- PROGRESS BOX -->
+            <div class="bulk-progress-box" id="bulk-progress-box" style="display:none;">
+              <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700;">
+                <span id="bulk-progress-status">Processing images...</span>
+                <span id="bulk-progress-text">0 / 0 (0%)</span>
+              </div>
+              <div class="bulk-progress-bar-track">
+                <div class="bulk-progress-bar-fill" id="bulk-progress-fill"></div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right Gallery Column -->
+          <div class="bulk-preview-col">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-light); padding-bottom:12px;">
+              <div>
+                <h3 style="font-size:15px; font-weight:800; color:var(--text-main);">Generated Designs Gallery</h3>
+                <p style="font-size:12px; color:var(--text-muted);">Each design is an independent instance and can be edited or exported.</p>
+              </div>
+
+              <div id="bulk-export-toolbar" style="display:none; align-items:center; gap:8px;">
+                <button class="btn-secondary" id="btn-retry-failed" style="display:none; color:var(--accent-red);">
+                  Retry Failed
+                </button>
+                <select id="bulk-export-format" class="input-control" style="width:90px;">
+                  <option value="png">PNG</option>
+                  <option value="jpg">JPG</option>
+                  <option value="webp">WebP</option>
+                </select>
+                <button class="btn-primary" id="btn-bulk-export-zip">
+                  📦 Export All as ZIP
+                </button>
+              </div>
+            </div>
+
+            <div class="bulk-generated-grid" id="bulk-gallery-container">
+              <div style="grid-column: 1 / -1; text-align:center; padding:80px 20px; color:var(--text-muted);">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:12px; opacity:0.4;"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/></svg>
+                <div style="font-size:14px; font-weight:700;">No bulk designs generated yet</div>
+                <div style="font-size:12px; margin-top:6px;">Upload images on the left and click "APPLY DESIGN TO ALL" to generate up to 50 separate designs!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. MODALS (New Design, Preview, Export, Shortcuts) -->
+
+    <!-- New Design Modal -->
+    <div class="modal-backdrop" id="modal-new-design">
+      <div class="modal-window">
+        <div class="modal-header">
+          <div class="modal-title">Create New Canvas</div>
+          <button class="drawer-close-btn" id="btn-close-new-modal">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="inspector-label">POPULAR PRESETS</div>
+          <div class="preset-sizes-grid" id="new-design-presets-grid">
+            <!-- Injected dynamically -->
+          </div>
+
+          <div class="inspector-label" style="margin-top:10px;">CUSTOM CANVAS SIZE</div>
+          <div class="prop-row">
+            <div class="prop-col">
+              <span class="prop-input-label">Width (px)</span>
+              <input type="number" id="custom-canvas-w" class="input-control" value="1080">
+            </div>
+            <div class="prop-col">
+              <span class="prop-input-label">Height (px)</span>
+              <input type="number" id="custom-canvas-h" class="input-control" value="1080">
+            </div>
+            <div class="prop-col">
+              <span class="prop-input-label">Resolution</span>
+              <select id="custom-canvas-ppi" class="input-control">
+                <option value="72">72 PPI (Web)</option>
+                <option value="96">96 PPI (Screen)</option>
+                <option value="150">150 PPI (Print)</option>
+                <option value="300" selected>300 PPI (Press / 4K)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Unit Converter Row -->
+          <div class="prop-row" style="margin-top:8px; background:var(--bg-hover); padding:8px; border-radius:var(--radius-sm);">
+            <div class="prop-col" style="max-width:90px;">
+              <span class="prop-input-label">Unit</span>
+              <select id="canvas-unit-select" class="input-control">
+                <option value="px" selected>px</option>
+                <option value="in">inches</option>
+                <option value="mm">mm</option>
+                <option value="cm">cm</option>
+              </select>
+            </div>
+            <div class="prop-col">
+              <span class="prop-input-label">Width</span>
+              <input type="number" id="canvas-unit-w" class="input-control" value="1080" step="0.01">
+            </div>
+            <div class="prop-col">
+              <span class="prop-input-label">Height</span>
+              <input type="number" id="canvas-unit-h" class="input-control" value="1080" step="0.01">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-primary" id="btn-create-canvas-submit">Create Canvas</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Full-Screen Preview Modal -->
+    <div class="modal-backdrop" id="modal-fullscreen-preview">
+      <div class="modal-window" style="max-width:850px;">
+        <div class="modal-header">
+          <div class="modal-title">Design Preview</div>
+          <button class="drawer-close-btn" id="btn-close-preview-modal">✕</button>
+        </div>
+        <div class="modal-body" style="align-items:center; justify-content:center; background:#0f172a; padding:30px;">
+          <img id="preview-modal-img" src="" alt="Full Preview" style="max-width:100%; max-height:70vh; border-radius:6px; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+        </div>
+      </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="modal-backdrop" id="modal-export">
+      <div class="modal-window" style="max-width:480px;">
+        <div class="modal-header">
+          <div class="modal-title">Export Design</div>
+          <button class="drawer-close-btn" id="btn-close-export-modal">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="prop-col">
+            <span class="prop-input-label">Format</span>
+            <select id="export-format-select" class="input-control">
+              <option value="png" selected>PNG (Lossless with Transparency)</option>
+              <option value="jpg">JPG (High Quality Photo)</option>
+              <option value="webp">WebP (Modern Web Compressed)</option>
+              <option value="pdf">PDF (Print Vector Document)</option>
+            </select>
+          </div>
+
+          <div class="prop-col" style="margin-top:10px;">
+            <span class="prop-input-label">Print Quality & Resolution</span>
+            <select id="export-ppi-select" class="input-control">
+              <option value="72">72 PPI (Standard Web)</option>
+              <option value="96">96 PPI (Standard Display)</option>
+              <option value="150">150 PPI (Medium Print)</option>
+              <option value="300" selected>300 PPI (Commercial Print Quality / 4K)</option>
+            </select>
+          </div>
+
+          <div style="font-size:11px; color:var(--text-muted); margin-top:8px; line-height:1.5;">
+            Target export file size: Approximately 5MB to 50MB when technically appropriate for 4K / 300 PPI prints.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-primary" id="btn-confirm-export">Download File</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shortcuts Cheatsheet Modal -->
+    <div class="modal-backdrop" id="modal-shortcuts">
+      <div class="modal-window" style="max-width:500px;">
+        <div class="modal-header">
+          <div class="modal-title">Keyboard Shortcuts</div>
+          <button class="drawer-close-btn" id="btn-close-shortcuts-modal">✕</button>
+        </div>
+        <div class="modal-body">
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; font-size:12px;">
+            <div><b>Ctrl + Z</b> : Undo</div>
+            <div><b>Ctrl + Shift + Z</b> : Redo</div>
+            <div><b>Ctrl + S</b> : Save Design</div>
+            <div><b>Ctrl + C</b> : Copy Object</div>
+            <div><b>Ctrl + V</b> : Paste Object</div>
+            <div><b>Ctrl + D</b> : Duplicate Object</div>
+            <div><b>Delete / Backspace</b> : Delete Selected</div>
+            <div><b>Ctrl + A</b> : Select All</div>
+            <div><b>Arrow Keys</b> : Nudge 1px</div>
+            <div><b>Shift + Arrows</b> : Nudge 10px</div>
+            <div><b>Esc</b> : Deselect All / Close Modals</div>
+            <div><b>Mouse Wheel</b> : Smooth Zoom</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Profile & Workspace Settings Modal -->
+    <div class="modal-backdrop" id="modal-profile">
+      <div class="modal-window" style="max-width:460px;">
+        <div class="modal-header">
+          <div class="modal-title">Workspace Profile & Preferences</div>
+          <button class="drawer-close-btn" id="btn-close-profile-modal">✕</button>
+        </div>
+        <div class="modal-body">
+          <div style="display:flex; align-items:center; gap:14px;">
+            <div class="user-avatar-btn" style="width:52px; height:52px; font-size:18px;">RI</div>
+            <div>
+              <div style="font-size:15px; font-weight:800; color:var(--text-main);">Rafiqul Islam</div>
+              <div style="font-size:12px; color:var(--text-muted);">Lead Graphic Designer • Pro License</div>
+            </div>
+          </div>
+
+          <div class="inspector-label" style="margin-top:10px;">STUDIO PREFERENCES</div>
+          <div class="prop-col">
+            <span class="prop-input-label">Theme Mode</span>
+            <div class="btn-group-toggle">
+              <button class="btn-group-item active" id="btn-theme-light">☀️ Light Professional</button>
+              <button class="btn-group-item" id="btn-theme-dark">🌙 Midnight Dark</button>
+            </div>
+          </div>
+
+          <div class="prop-col" style="margin-top:10px;">
+            <span class="prop-input-label">Default Export Format</span>
+            <select id="pref-export-format" class="input-control">
+              <option value="png" selected>PNG Lossless</option>
+              <option value="jpg">JPG Photographic</option>
+              <option value="webp">WebP Compressed</option>
+              <option value="pdf">PDF Vector Document</option>
+            </select>
+          </div>
+
+          <div class="prop-col" style="margin-top:10px;">
+            <span class="prop-input-label">Default Canvas Resolution</span>
+            <select id="pref-default-ppi" class="input-control">
+              <option value="72">72 PPI (Web Fast)</option>
+              <option value="96">96 PPI (Standard Display)</option>
+              <option value="150">150 PPI (Medium Print)</option>
+              <option value="300" selected>300 PPI (Print / 4K)</option>
+            </select>
+          </div>
+
+          <div style="margin-top:12px; padding:12px; background:var(--bg-app); border-radius:var(--radius-md); font-size:12px; color:var(--text-muted);">
+            <div><b>Local Storage:</b> IndexedDB Active</div>
+            <div><b>Adobe Stock Ready:</b> Enabled (4K resolution exports permitted)</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-primary" id="btn-save-profile-prefs">Save Preferences</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Image Crop Modal -->
+    <div class="modal-backdrop" id="modal-crop">
+      <div class="modal-window" style="max-width:680px;">
+        <div class="modal-header">
+          <div class="modal-title">Crop Image Area</div>
+          <button class="drawer-close-btn" id="btn-close-crop-modal">✕</button>
+        </div>
+        <div class="modal-body" style="align-items:center;">
+          <div class="crop-container-box" id="crop-modal-box">
+            <img id="crop-target-img" class="crop-preview-img" src="" alt="Crop Preview">
+          </div>
+          <div class="prop-row" style="width:100%; margin-top:12px;">
+            <button class="btn-secondary" id="btn-crop-square" style="flex:1;">1:1 Square</button>
+            <button class="btn-secondary" id="btn-crop-16-9" style="flex:1;">16:9 Landscape</button>
+            <button class="btn-secondary" id="btn-crop-4-5" style="flex:1;">4:5 Portrait</button>
+            <button class="btn-secondary" id="btn-crop-free" style="flex:1;">Center 80%</button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-primary" id="btn-apply-crop-confirm">Apply Crop</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rename Item Modal -->
+    <div class="modal-backdrop" id="modal-rename">
+      <div class="modal-window" style="max-width:400px;">
+        <div class="modal-header">
+          <div class="modal-title">Rename Item</div>
+          <button class="drawer-close-btn" id="btn-close-rename-modal">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="prop-col">
+            <span class="prop-input-label">New Title</span>
+            <input type="text" id="rename-input-title" class="input-control" value="">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-primary" id="btn-confirm-rename-submit">Save Title</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Image Lightbox Modal -->
+    <div class="modal-backdrop" id="modal-image-lightbox">
+      <div class="modal-window" style="max-width:800px; background:#0f172a; border-color:#334155;">
+        <div class="modal-header" style="border-color:#334155;">
+          <div class="modal-title" id="lightbox-title" style="color:#fff;">Image Preview</div>
+          <button class="drawer-close-btn" id="btn-close-lightbox-modal" style="color:#cbd5e1;">✕</button>
+        </div>
+        <div class="modal-body" style="align-items:center; justify-content:center; padding:20px;">
+          <img id="lightbox-preview-img" src="" alt="Lightbox Preview" style="max-width:100%; max-height:70vh; border-radius:6px;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container"></div>
+
+  </div>
+
+  <!-- Application Logic Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/canvas.js"></script>
+  <script src="js/bulk.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
