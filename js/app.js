@@ -238,6 +238,9 @@ class RICreativeApp {
     if (this.currentTab === 'templates') {
       titleEl.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg> Design Templates`;
       this.renderTemplatesDrawer(bodyEl);
+    } else if (this.currentTab === 'ai-studio') {
+      titleEl.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="8"/></svg> AI Design Studio`;
+      this.renderAiStudioDrawer(bodyEl);
     } else if (this.currentTab === 'elements') {
       titleEl.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24M14.83 9.17l4.24-4.24M14.83 14.83l4.24 4.24M9.17 14.83l-4.24 4.24"/></svg> Vector Elements`;
       this.renderElementsDrawer(bodyEl);
@@ -260,6 +263,600 @@ class RICreativeApp {
       titleEl.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> My Saved Designs`;
       this.renderMyDesignsDrawer(bodyEl);
     }
+  }
+
+  /**
+   * AI Design Studio (prompt-driven generation)
+   */
+  renderAiStudioDrawer(container) {
+    const savedKey = localStorage.getItem('ri-ai-api-key') || '';
+    const savedProvider = localStorage.getItem('ri-ai-provider') || 'openrouter';
+    const savedModel = localStorage.getItem('ri-ai-model') || this.getDefaultAiModel(savedProvider);
+
+    container.innerHTML = `
+      <div class="ai-studio-panel">
+        <div class="ai-prompt-box">
+          <label class="inspector-label">AI DESIGN PROMPT</label>
+          <textarea id="ai-design-prompt" class="ai-prompt-input" rows="4" placeholder="e.g. Luxury black gold smartwatch campaign for premium audience">Luxury black gold smartwatch campaign for premium audience</textarea>
+        </div>
+
+        <div class="ai-style-picker">
+          <label class="inspector-label">STYLE MIX</label>
+          <div class="ai-style-grid">
+            <button class="ai-style-btn active" data-ai-style="luxury">Luxury</button>
+            <button class="ai-style-btn" data-ai-style="minimal">Minimal</button>
+            <button class="ai-style-btn" data-ai-style="tech">Tech</button>
+            <button class="ai-style-btn" data-ai-style="sale">Sale</button>
+            <button class="ai-style-btn" data-ai-style="fashion">Fashion</button>
+            <button class="ai-style-btn" data-ai-style="food">Food</button>
+          </div>
+        </div>
+
+        <div class="ai-config-box">
+          <label class="inspector-label">PROVIDER</label>
+          <select id="ai-provider-select" class="ai-model-select">
+            <option value="openrouter" ${savedProvider === 'openrouter' ? 'selected' : ''}>OpenRouter</option>
+            <option value="openai" ${savedProvider === 'openai' ? 'selected' : ''}>OpenAI</option>
+            <option value="gemini" ${savedProvider === 'gemini' ? 'selected' : ''}>Google Gemini</option>
+            <option value="claude" ${savedProvider === 'claude' ? 'selected' : ''}>Anthropic Claude</option>
+            <option value="grok" ${savedProvider === 'grok' ? 'selected' : ''}>xAI Grok</option>
+          </select>
+        </div>
+
+        <div class="ai-config-box">
+          <label class="inspector-label">API KEY</label>
+          <div class="ai-key-row">
+            <input id="ai-api-key" class="ai-api-input" type="password" value="${savedKey}" placeholder="Paste your ${savedProvider} API key" />
+            <button type="button" id="btn-ai-create-key" class="btn-secondary ai-key-btn">Create Key</button>
+          </div>
+        </div>
+
+        <div class="ai-config-box">
+          <label class="inspector-label">MODEL</label>
+          <select id="ai-model-select" class="ai-model-select">
+            <option value="openai/gpt-4o-mini" ${savedModel === 'openai/gpt-4o-mini' ? 'selected' : ''}>OpenAI GPT-4o Mini</option>
+            <option value="google/gemini-2.5-flash" ${savedModel === 'google/gemini-2.5-flash' ? 'selected' : ''}>Google Gemini 2.5 Flash</option>
+            <option value="google/gemini-2.5-pro" ${savedModel === 'google/gemini-2.5-pro' ? 'selected' : ''}>Google Gemini 2.5 Pro</option>
+            <option value="google/gemini-3.5-flash" ${savedModel === 'google/gemini-3.5-flash' ? 'selected' : ''}>Google Gemini 3.5 Flash</option>
+            <option value="google/gemini-3.8-pro" ${savedModel === 'google/gemini-3.8-pro' ? 'selected' : ''}>Google Gemini 3.8 Pro</option>
+            <option value="anthropic/claude-3.5-sonnet" ${savedModel === 'anthropic/claude-3.5-sonnet' ? 'selected' : ''}>Anthropic Claude 3.5 Sonnet</option>
+            <option value="xai/grok-2-latest" ${savedModel === 'xai/grok-2-latest' ? 'selected' : ''}>xAI Grok 2 Latest</option>
+            <option value="gpt-4o-mini" ${savedModel === 'gpt-4o-mini' ? 'selected' : ''}>Direct OpenAI GPT-4o Mini</option>
+            <option value="gemini-2.5-flash" ${savedModel === 'gemini-2.5-flash' ? 'selected' : ''}>Direct Gemini 2.5 Flash</option>
+            <option value="gemini-2.5-pro" ${savedModel === 'gemini-2.5-pro' ? 'selected' : ''}>Direct Gemini 2.5 Pro</option>
+            <option value="gemini-3.5-flash" ${savedModel === 'gemini-3.5-flash' ? 'selected' : ''}>Direct Gemini 3.5 Flash</option>
+            <option value="gemini-3.8-pro" ${savedModel === 'gemini-3.8-pro' ? 'selected' : ''}>Direct Gemini 3.8 Pro</option>
+            <option value="claude-3-5-sonnet-20241022" ${savedModel === 'claude-3-5-sonnet-20241022' ? 'selected' : ''}>Direct Claude 3.5 Sonnet</option>
+            <option value="grok-2-latest" ${savedModel === 'grok-2-latest' ? 'selected' : ''}>Direct Grok 2 Latest</option>
+          </select>
+        </div>
+
+        <div class="ai-actions">
+          <button class="btn-primary" id="btn-ai-generate">Generate Design</button>
+          <button class="btn-secondary" id="btn-ai-random">Random Mix</button>
+        </div>
+
+        <div class="ai-insight-grid">
+          <div class="ai-insight-card">
+            <span>Recommended Layout</span>
+            <strong id="ai-layout-label">Luxury Hero Banner</strong>
+          </div>
+          <div class="ai-insight-card">
+            <span>Suggested CTA</span>
+            <strong id="ai-cta-label">Shop Now</strong>
+          </div>
+        </div>
+      </div>
+    `;
+
+    let activeAiStyle = 'luxury';
+
+    const providerSelect = container.querySelector('#ai-provider-select');
+    const keyInput = container.querySelector('#ai-api-key');
+
+    providerSelect?.addEventListener('change', () => {
+      const nextProvider = providerSelect.value;
+      const nextModel = this.getDefaultAiModel(nextProvider);
+      const modelSelect = container.querySelector('#ai-model-select');
+      if (modelSelect) {
+        modelSelect.value = nextModel;
+        localStorage.setItem('ri-ai-model', nextModel);
+      }
+      localStorage.setItem('ri-ai-provider', nextProvider);
+      if (keyInput) {
+        keyInput.placeholder = `Paste your ${nextProvider} API key`;
+      }
+      const createButton = container.querySelector('#btn-ai-create-key');
+      if (createButton) {
+        createButton.title = `Create ${nextProvider} API key`;
+      }
+    });
+
+    container.querySelector('#btn-ai-create-key')?.addEventListener('click', () => {
+      const activeProvider = container.querySelector('#ai-provider-select')?.value || 'openrouter';
+      const url = this.getProviderApiUrl(activeProvider);
+      window.open(url, '_blank', 'noopener,noreferrer');
+      this.toast(`Open ${activeProvider.toUpperCase()} key page`, 'info');
+    });
+
+    container.querySelectorAll('.ai-style-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeAiStyle = btn.dataset.aiStyle;
+        container.querySelectorAll('.ai-style-btn').forEach(b => b.classList.toggle('active', b === btn));
+      });
+    });
+
+    container.querySelector('#btn-ai-random')?.addEventListener('click', () => {
+      const styles = ['luxury', 'minimal', 'tech', 'sale', 'fashion', 'food'];
+      const next = styles[Math.floor(Math.random() * styles.length)];
+      activeAiStyle = next;
+      const btn = container.querySelector(`[data-ai-style="${next}"]`);
+      if (btn) {
+        container.querySelectorAll('.ai-style-btn').forEach(b => b.classList.toggle('active', b === btn));
+      }
+      const promptPool = [
+        'Luxury premium product campaign for smart watch',
+        'Minimal modern restaurant banner',
+        'Tech startup launch design for SaaS product',
+        'Fashion sale hero banner for summer collection',
+        'High-conversion food promo poster',
+        'Bold product launch poster for cosmetic brand'
+      ];
+      const promptInput = document.getElementById('ai-design-prompt');
+      if (promptInput) promptInput.value = promptPool[Math.floor(Math.random() * promptPool.length)];
+    });
+
+    container.querySelector('#btn-ai-generate')?.addEventListener('click', async () => {
+      const promptInput = document.getElementById('ai-design-prompt');
+      const apiKeyInput = document.getElementById('ai-api-key');
+      const providerSelect = document.getElementById('ai-provider-select');
+      const modelSelect = document.getElementById('ai-model-select');
+      const prompt = (promptInput?.value || '').trim() || 'Premium modern product launch campaign';
+
+      if (apiKeyInput) {
+        const value = apiKeyInput.value.trim();
+        if (value) {
+          localStorage.setItem('ri-ai-api-key', value);
+        } else {
+          localStorage.removeItem('ri-ai-api-key');
+        }
+      }
+
+      if (providerSelect) {
+        localStorage.setItem('ri-ai-provider', providerSelect.value);
+      }
+
+      if (modelSelect) {
+        localStorage.setItem('ri-ai-model', modelSelect.value);
+      }
+
+      const generated = await this.generateAiDesign(prompt, activeAiStyle);
+      if (generated) {
+        this.toast(generated.isRealAi ? 'Real AI concept generated and applied to canvas' : 'AI concept generated and applied to canvas', generated.isRealAi ? 'success' : 'info');
+      }
+    });
+  }
+
+  getProviderApiUrl(provider = 'openrouter') {
+    const map = {
+      openrouter: 'https://openrouter.ai/keys',
+      openai: 'https://platform.openai.com/api-keys',
+      gemini: 'https://aistudio.google.com/app/apikey',
+      claude: 'https://console.anthropic.com/settings/keys',
+      grok: 'https://console.x.ai/'
+    };
+    return map[provider] || map.openrouter;
+  }
+
+  getDefaultAiModel(provider = 'openrouter') {
+    const map = {
+      openrouter: 'openai/gpt-4o-mini',
+      openai: 'gpt-4o-mini',
+      gemini: 'gemini-3.8-pro',
+      claude: 'claude-3-5-sonnet-20241022',
+      grok: 'grok-2-latest'
+    };
+    return map[provider] || map.openrouter;
+  }
+
+  async generateAiDesign(prompt, style = 'luxury') {
+    const apiResult = await this.tryGenerateDesignFromApi(prompt, style);
+    if (apiResult) {
+      this.applyGeneratedDesignSpec(apiResult, true);
+      return { isRealAi: true };
+    }
+
+    const normalized = (prompt || '').toLowerCase();
+    const cleanPrompt = (prompt || '').replace(/\s+/g, ' ').trim();
+    const title = this.aiTitleFromPrompt(cleanPrompt);
+    const layout = this.aiLayoutFromPrompt(normalized, style);
+    const palette = this.aiPaletteFromPrompt(normalized, style);
+    this.applyGeneratedDesignSpec({ title, subtitle: layout.subtitle, cta: layout.cta, price: layout.price, palette }, false);
+    return { isRealAi: false };
+  }
+
+  applyGeneratedDesignSpec(spec, isRealAi = false) {
+    const title = spec.title || 'AI Premium Design';
+    const subtitle = spec.subtitle || 'Creative concept generated for your campaign';
+    const cta = spec.cta || 'Shop Now';
+    const price = spec.price || '$99';
+    const palette = spec.palette || { bg1: '#0f172a', bg2: '#4f46e5', bg3: '#ec4899' };
+
+    const canvas = this.studio.canvas;
+    canvas.clear();
+    this.studio.setBackground({
+      type: 'gradient',
+      gradient: {
+        angle: 135,
+        type: 'linear',
+        stops: [
+          { offset: 0, color: palette.bg1 },
+          { offset: 0.5, color: palette.bg2 },
+          { offset: 1, color: palette.bg3 }
+        ]
+      }
+    });
+
+    const accent = new fabric.Rect({
+      left: 0,
+      top: 0,
+      width: this.studio.width,
+      height: this.studio.height * 0.18,
+      fill: 'rgba(255,255,255,0.08)',
+      selectable: false
+    });
+    canvas.add(accent);
+
+    const badge = new fabric.Rect({
+      left: this.studio.width * 0.08,
+      top: this.studio.height * 0.08,
+      width: 180,
+      height: 36,
+      rx: 18,
+      ry: 18,
+      fill: 'rgba(255,255,255,0.14)',
+      selectable: false
+    });
+    canvas.add(badge);
+
+    const badgeText = new fabric.IText(isRealAi ? 'REAL AI' : 'AI EDITION', {
+      left: this.studio.width * 0.1,
+      top: this.studio.height * 0.09,
+      fontFamily: 'Plus Jakarta Sans',
+      fontSize: 14,
+      fontWeight: '700',
+      fill: '#ffffff',
+      letterSpacing: 2,
+      selectable: false
+    });
+    canvas.add(badgeText);
+
+    const heroText = new fabric.IText(title, {
+      left: this.studio.width * 0.08,
+      top: this.studio.height * 0.42,
+      fontFamily: 'Poppins',
+      fontSize: Math.min(this.studio.width * 0.06, 62),
+      fontWeight: '800',
+      fill: '#ffffff',
+      lineHeight: 1,
+      width: this.studio.width * 0.52,
+      selectable: false
+    });
+    canvas.add(heroText);
+
+    const subtitleText = new fabric.IText(subtitle, {
+      left: this.studio.width * 0.08,
+      top: this.studio.height * 0.62,
+      fontFamily: 'Inter',
+      fontSize: 22,
+      fill: 'rgba(255,255,255,0.9)',
+      width: this.studio.width * 0.5,
+      selectable: false
+    });
+    canvas.add(subtitleText);
+
+    const ctaBox = new fabric.Rect({
+      left: this.studio.width * 0.08,
+      top: this.studio.height * 0.72,
+      width: 180,
+      height: 52,
+      rx: 26,
+      ry: 26,
+      fill: '#ffffff',
+      selectable: false
+    });
+    canvas.add(ctaBox);
+
+    const ctaText = new fabric.IText(cta, {
+      left: this.studio.width * 0.12,
+      top: this.studio.height * 0.74,
+      fontFamily: 'Plus Jakarta Sans',
+      fontSize: 16,
+      fontWeight: '800',
+      fill: palette.bg1,
+      selectable: false
+    });
+    canvas.add(ctaText);
+
+    const productCard = new fabric.Rect({
+      left: this.studio.width * 0.64,
+      top: this.studio.height * 0.21,
+      width: this.studio.width * 0.24,
+      height: this.studio.height * 0.54,
+      rx: 28,
+      ry: 28,
+      fill: 'rgba(255,255,255,0.12)',
+      stroke: 'rgba(255,255,255,0.35)',
+      strokeWidth: 2,
+      selectable: false
+    });
+    canvas.add(productCard);
+
+    const productGlow = new fabric.Rect({
+      left: this.studio.width * 0.67,
+      top: this.studio.height * 0.24,
+      width: this.studio.width * 0.19,
+      height: this.studio.height * 0.47,
+      rx: 24,
+      ry: 24,
+      fill: 'rgba(15,23,42,0.18)',
+      selectable: false
+    });
+    canvas.add(productGlow);
+
+    const priceTag = new fabric.Rect({
+      left: this.studio.width * 0.65,
+      top: this.studio.height * 0.76,
+      width: this.studio.width * 0.18,
+      height: 42,
+      rx: 21,
+      ry: 21,
+      fill: '#ffffff',
+      selectable: false
+    });
+    canvas.add(priceTag);
+
+    const priceText = new fabric.IText(price, {
+      left: this.studio.width * 0.69,
+      top: this.studio.height * 0.775,
+      fontFamily: 'Plus Jakarta Sans',
+      fontSize: 18,
+      fontWeight: '800',
+      fill: palette.bg1,
+      selectable: false
+    });
+    canvas.add(priceText);
+
+    canvas.discardActiveObject();
+    canvas.renderAll();
+    this.studio.activeDesignTitle = title;
+    const titleInput = document.getElementById('header-design-title');
+    if (titleInput) titleInput.value = title;
+    this.updateStatusbar();
+  }
+
+  parseAiJsonResponse(rawText) {
+    const cleaned = (rawText || '').replace(/```json|```/gi, '').trim();
+    const firstBrace = cleaned.indexOf('{');
+    const lastBrace = cleaned.lastIndexOf('}');
+    const jsonText = firstBrace >= 0 && lastBrace > firstBrace ? cleaned.slice(firstBrace, lastBrace + 1) : cleaned;
+    return JSON.parse(jsonText);
+  }
+
+  async tryGenerateDesignFromApi(prompt, style = 'luxury') {
+    const apiKey = localStorage.getItem('ri-ai-api-key')?.trim();
+    if (!apiKey) return null;
+
+    const provider = localStorage.getItem('ri-ai-provider') || 'openrouter';
+    const model = localStorage.getItem('ri-ai-model') || this.getDefaultAiModel(provider);
+    const promptText = `Create a premium social ad hero banner for: ${prompt}. Style: ${style}. The design should feel modern, premium, sales-focused, and conversion friendly.`;
+
+    try {
+      let response;
+      let payload;
+
+      if (provider === 'gemini') {
+        response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            generationConfig: { temperature: 0.7, responseMimeType: 'application/json' },
+            contents: [{ parts: [{ text: `You are a premium marketing designer. Return valid JSON only with keys: title, subtitle, cta, price, palette. palette must include bg1, bg2, bg3 as hex colors. Keep title short, catchy, and under 6 words. subtitle under 90 characters. cta under 16 chars.\n\n${promptText}` }] }]
+          })
+        });
+        payload = await response.json();
+        const text = payload?.candidates?.[0]?.content?.parts?.map(part => part.text).join('') || '';
+        const parsed = this.parseAiJsonResponse(text);
+        if (!parsed || !parsed.title) throw new Error('Invalid Gemini response format');
+        const palette = parsed.palette || {};
+        return {
+          title: parsed.title,
+          subtitle: parsed.subtitle || 'Conversion-focused creative for your audience.',
+          cta: parsed.cta || 'Shop Now',
+          price: parsed.price || '$99',
+          palette: { bg1: palette.bg1 || '#0f172a', bg2: palette.bg2 || '#4f46e5', bg3: palette.bg3 || '#ec4899' }
+        };
+      }
+
+      if (provider === 'claude') {
+        response = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01'
+          },
+          body: JSON.stringify({
+            model,
+            max_tokens: 400,
+            temperature: 0.7,
+            system: 'You are a premium marketing designer. Return valid JSON only with keys: title, subtitle, cta, price, palette. palette must include bg1, bg2, bg3 as hex colors. Keep title short, catchy, and under 6 words. subtitle under 90 characters. cta under 16 chars.',
+            messages: [{ role: 'user', content: promptText }]
+          })
+        });
+        payload = await response.json();
+        const text = payload?.content?.[0]?.text || '';
+        const parsed = this.parseAiJsonResponse(text);
+        if (!parsed || !parsed.title) throw new Error('Invalid Claude response format');
+        const palette = parsed.palette || {};
+        return {
+          title: parsed.title,
+          subtitle: parsed.subtitle || 'Conversion-focused creative for your audience.',
+          cta: parsed.cta || 'Shop Now',
+          price: parsed.price || '$99',
+          palette: { bg1: palette.bg1 || '#0f172a', bg2: palette.bg2 || '#4f46e5', bg3: palette.bg3 || '#ec4899' }
+        };
+      }
+
+      if (provider === 'grok') {
+        response = await fetch('https://api.x.ai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model,
+            temperature: 0.7,
+            messages: [
+              { role: 'system', content: 'You are a premium marketing designer. Return valid JSON only with keys: title, subtitle, cta, price, palette. palette must include bg1, bg2, bg3 as hex colors. Keep title short, catchy, and under 6 words. subtitle under 90 characters. cta under 16 chars.' },
+              { role: 'user', content: promptText }
+            ]
+          })
+        });
+        payload = await response.json();
+        const text = payload?.choices?.[0]?.message?.content || '';
+        const parsed = this.parseAiJsonResponse(text);
+        if (!parsed || !parsed.title) throw new Error('Invalid Grok response format');
+        const palette = parsed.palette || {};
+        return {
+          title: parsed.title,
+          subtitle: parsed.subtitle || 'Conversion-focused creative for your audience.',
+          cta: parsed.cta || 'Shop Now',
+          price: parsed.price || '$99',
+          palette: { bg1: palette.bg1 || '#0f172a', bg2: palette.bg2 || '#4f46e5', bg3: palette.bg3 || '#ec4899' }
+        };
+      }
+
+      if (provider === 'openai') {
+        response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model,
+            temperature: 0.7,
+            response_format: { type: 'json_object' },
+            messages: [
+              { role: 'system', content: 'You are a premium marketing designer. Return valid JSON only with keys: title, subtitle, cta, price, palette. palette must include bg1, bg2, bg3 as hex colors. Keep title short, catchy, and under 6 words. subtitle under 90 characters. cta under 16 chars.' },
+              { role: 'user', content: promptText }
+            ]
+          })
+        });
+      } else {
+        response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`,
+            'HTTP-Referer': window.location.origin || 'https://localhost',
+            'X-Title': 'RI Creative AI Studio'
+          },
+          body: JSON.stringify({
+            model,
+            temperature: 0.7,
+            response_format: { type: 'json_object' },
+            messages: [
+              { role: 'system', content: 'You are a premium marketing designer. Return valid JSON only with keys: title, subtitle, cta, price, palette. palette must include bg1, bg2, bg3 as hex colors. Keep title short, catchy, and under 6 words. subtitle under 90 characters. cta under 16 chars.' },
+              { role: 'user', content: promptText }
+            ]
+          })
+        });
+      }
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`AI request failed: ${response.status} ${errorText}`);
+      }
+
+      payload = await response.json();
+      const raw = payload?.choices?.[0]?.message?.content || '';
+      const parsed = this.parseAiJsonResponse(raw);
+
+      if (!parsed || !parsed.title) {
+        throw new Error('Invalid AI response format');
+      }
+
+      const palette = parsed.palette || {};
+      return {
+        title: parsed.title,
+        subtitle: parsed.subtitle || 'Conversion-focused creative for your audience.',
+        cta: parsed.cta || 'Shop Now',
+        price: parsed.price || '$99',
+        palette: {
+          bg1: palette.bg1 || '#0f172a',
+          bg2: palette.bg2 || '#4f46e5',
+          bg3: palette.bg3 || '#ec4899'
+        }
+      };
+    } catch (error) {
+      console.error('Real AI generation failed:', error);
+      this.toast('Selected AI provider key is invalid or request failed. Using local fallback design.', 'warning');
+      return null;
+    }
+  }
+
+  aiTitleFromPrompt(prompt) {
+    const cleaned = (prompt || '').replace(/^(create|design|make|generate|an|a|for|with|about)/gi, '').trim();
+    const words = cleaned.split(/\s+/).filter(Boolean).slice(0, 4);
+    if (!words.length) return 'AI Premium Design';
+    return words.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  }
+
+  aiLayoutFromPrompt(normalized, style) {
+    const saleKeywords = ['sale', 'offer', 'discount', 'promo', 'launch'];
+    const luxuryKeywords = ['luxury', 'premium', 'gold', 'elegant', 'fashion'];
+    const techKeywords = ['tech', 'app', 'saas', 'startup', 'digital'];
+    const foodKeywords = ['food', 'restaurant', 'coffee', 'bakery', 'cafe'];
+    const minimalKeywords = ['minimal', 'clean', 'modern', 'studio'];
+
+    if (saleKeywords.some(word => normalized.includes(word)) || style === 'sale') {
+      return { subtitle: 'Limited-time offer designed to convert attention into action.', cta: 'Shop Offer', price: '$49.99' };
+    }
+    if (luxuryKeywords.some(word => normalized.includes(word)) || style === 'luxury') {
+      return { subtitle: 'Crafted for high-end positioning and premium brand perception.', cta: 'Explore Now', price: '$299' };
+    }
+    if (techKeywords.some(word => normalized.includes(word)) || style === 'tech') {
+      return { subtitle: 'UI-ready launch visual for modern software and digital products.', cta: 'Try Demo', price: '$39' };
+    }
+    if (foodKeywords.some(word => normalized.includes(word)) || style === 'food') {
+      return { subtitle: 'Fresh, irresistible, and built to sell in a crowded market.', cta: 'Order Today', price: '$18' };
+    }
+    if (minimalKeywords.some(word => normalized.includes(word)) || style === 'minimal') {
+      return { subtitle: 'Soft contrast, balanced whitespace, and clean conversion-focused layout.', cta: 'Learn More', price: '$79' };
+    }
+    return { subtitle: 'Conversion-oriented creative with a polished premium finish.', cta: 'Get Started', price: '$99' };
+  }
+
+  aiPaletteFromPrompt(normalized, style) {
+    if (style === 'sale' || normalized.includes('sale') || normalized.includes('offer')) {
+      return { bg1: '#dc2626', bg2: '#f97316', bg3: '#fb7185' };
+    }
+    if (style === 'tech' || normalized.includes('tech') || normalized.includes('saas') || normalized.includes('app')) {
+      return { bg1: '#0f172a', bg2: '#0ea5e9', bg3: '#312e81' };
+    }
+    if (style === 'minimal' || normalized.includes('minimal') || normalized.includes('clean')) {
+      return { bg1: '#334155', bg2: '#94a3b8', bg3: '#e2e8f0' };
+    }
+    if (style === 'food' || normalized.includes('food') || normalized.includes('restaurant')) {
+      return { bg1: '#f97316', bg2: '#fb923c', bg3: '#facc15' };
+    }
+    if (style === 'fashion' || normalized.includes('fashion') || normalized.includes('beauty')) {
+      return { bg1: '#7c3aed', bg2: '#ec4899', bg3: '#f9a8d4' };
+    }
+    return { bg1: '#0f172a', bg2: '#4f46e5', bg3: '#ec4899' };
   }
 
   /**

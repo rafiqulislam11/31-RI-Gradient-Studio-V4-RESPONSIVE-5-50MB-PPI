@@ -592,6 +592,133 @@ body.dark-mode {
 }
 
 /* Elements & Shapes Grid */
+.ai-studio-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ai-prompt-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ai-prompt-input {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  background: var(--bg-app);
+  color: var(--text-main);
+  resize: vertical;
+  font: inherit;
+}
+
+.ai-prompt-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.ai-style-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.ai-style-btn {
+  padding: 10px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+  background: #fff;
+  color: var(--text-main);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ai-style-btn.active,
+.ai-style-btn:hover {
+  background: var(--bg-active);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.ai-config-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ai-key-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ai-api-input,
+.ai-model-select {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  background: var(--bg-app);
+  color: var(--text-main);
+  font: inherit;
+}
+
+.ai-key-btn {
+  white-space: nowrap;
+  height: 40px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ai-api-input:focus,
+.ai-model-select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.ai-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.ai-insight-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.ai-insight-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  background: var(--bg-app);
+}
+
+.ai-insight-card span {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.ai-insight-card strong {
+  font-size: 12px;
+  color: var(--text-main);
+}
+
 .elements-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
